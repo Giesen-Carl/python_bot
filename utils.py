@@ -7,28 +7,24 @@ import keyboard
 import random
 import win32api
 import win32con
-from pynput import mouse
-from data import *
+import json
 
 threshold = .75
 
+with open("config/config.json", "r") as file:
+    config = json.load(file)
+
 images = {}
-def load_images(folder_path="images"):
-    for filename in os.listdir(folder_path):
-        if filename.lower().endswith(".png"):
-            name = os.path.splitext(filename)[0]  # remove ".png"
-            images[name] = cv2.imread(f'images/{name}.png', cv2.IMREAD_UNCHANGED)
-    return images
-load_images()
+for filename in os.listdir('config/images'):
+    if filename.lower().endswith(".png"):
+        name = os.path.splitext(filename)[0]  # remove ".png"
+        images[name] = cv2.imread(f'config/images/{name}.png', cv2.IMREAD_UNCHANGED)
 
 
 def display_image(image):
     cv2.imshow('NeedNoTitle', image)
     cv2.waitKey()
     cv2.destroyAllWindows()
-
-
-img_cache = {}
 
 
 def find_image(base_image, search_image):
@@ -50,7 +46,7 @@ def get_rect_centers(rects):
     for rect in rects:
         x = round(rect[0] + rect[2] / 2)
         y = round(rect[1] + rect[3] / 2)
-        centers.append((x, y))
+        centers.append({'x': x, 'y': y})
     return centers
 
 
@@ -59,7 +55,8 @@ def take_screenshot():
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 
-def take_screenshot_with_region(region):
+def take_screenshot_with_region(region_json):
+    region = (region_json['x'], region_json['y'], region_json['w'], region_json['h'])
     img = pyautogui.screenshot(region=region)
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
@@ -82,30 +79,12 @@ def start(start_key):
     while not key_down(start_key):
         sleep(0.1)
 
+
 def wait_until(condition):
     while not condition():
         if key_down('q'):
             raise TimeoutError()
         time.sleep(0.05)
-
-
-mouse_pressed = False
-def on_click(x, y, button, pressed):
-    global mouse_pressed
-    mouse_pressed = pressed
-listener = mouse.Listener(on_click=on_click)
-listener.start()
-
-
-def click_mode():
-    start('s')
-    print('click mode started. Press "q" to exit.')
-    while not key_down('q'):
-        if mouse_pressed:
-            x, y = pyautogui.position()
-            pixel = pyautogui.pixel(x, y)
-            print(f"({x}, {y}, {pixel})")
-        sleep(0.1)
 
 
 def write_line(line: int, text: str):
@@ -121,13 +100,13 @@ def print_if_present(shot, img_name, line):
 
 
 def check_for_image(img_name):
-    return len(find_image(take_screenshot_with_region(regions[img_name]), images[img_name])) > 0
+    return len(find_image(take_screenshot_with_region(config['ui_buttons'][img_name]), images[img_name])) > 0
 
 
 def check_for_any_image(img_names):
     return any(
-        len(find_image(take_screenshot_with_region(regions[name]), images[name])) > 0
-        for name in img_names
+        len(find_image(take_screenshot_with_region(config['ui_buttons'][img_name]), images[img_name])) > 0
+        for img_name in img_names
     )
 
 
@@ -142,8 +121,10 @@ def wait_for_any_image(imgs):
 
 
 def click_image(image_name):
-    x, y = get_rect_centers([regions[image_name]])[0]
-    custom_click(x, y, 5)
+    region = config['ui_buttons'][image_name]
+    rect = (region['x'], region['y'], region['w'], region['h'])
+    c = get_rect_centers([rect])[0]
+    custom_click(c['x'], c['y'], 5)
 
 
 def wait_for_image_and_click(image_name):
@@ -156,9 +137,8 @@ def sleep_random(min, max):
 
 
 def click_succession(positions):
-    for pos in positions:
-        x, y = pos
-        custom_click(x, y, 5)
+    for c in positions:
+        custom_click(c['x'], c['y'], 5)
         sleep_random(20, 50)
 
 
@@ -167,19 +147,18 @@ def zoom_out():
         pyautogui.scroll(-500)
 
 
-def click_troop(troop_name):
-    x, y = troop_buttons[troop_name]
-    custom_click(x, y, 5)
+def click_unit(unit_name):
+    c = config['unit_buttons'][unit_name]
+    custom_click(c['x'], c['y'], 5)
 
 
-def click_troop_placements(troop_name):
-    x, y = troop_placements[troop_name]
-    custom_click(x, y, 5)
+def click_unit_placements(unit_name):
+    c = config['unit_placements'][unit_name]
+    custom_click(c['x'], c['y'], 5)
 
 def click_all(points):
-    for p in points:
-        x, y = p
-        custom_click(x, y, 5)
+    for c in points:
+        custom_click(c['x'], c['y'], 5)
 
 def drag(x, y):
     x_base = 970

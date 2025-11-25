@@ -1,4 +1,5 @@
-images
+config/images
 .idea
 __pycache__
 venv
+config
