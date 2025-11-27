@@ -158,7 +158,9 @@ def click_unit_placements(unit_name):
 
 def click_all(points):
     for c in points:
-        custom_click(c['x'], c['y'], 5)
+        x, y = c
+        custom_click(x, y, 0)
+        sleep(0.5)
 
 def drag(x, y):
     x_base = 970
