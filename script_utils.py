@@ -69,6 +69,9 @@ def check_for_image(image_name, region):
 
 def check_for_any_image(image_1_name, image_1_region, image_2_name, image_2_region):
     return check_for_image(image_1_name, image_1_region) or check_for_image(image_2_name, image_2_region)
+    
+def check_for_inf_image(image_names, image_region):
+    return any(check_for_image(name, image_region) for name in image_names)
 
 
 def wait_for_image(image_name, region):
@@ -77,6 +80,10 @@ def wait_for_image(image_name, region):
 
 def wait_for_any_image(image_1_name, image_1_region, image_2_name, image_2_region):
     wait_until(lambda: check_for_any_image(image_1_name, image_1_region, image_2_name, image_2_region))
+
+    
+def wait_for_inf_image(image_names, image_region):
+    wait_until(lambda: check_for_inf_image(image_names, image_region))
 
 
 def custom_scroll(val):
@@ -103,6 +110,8 @@ def execute(line, command, parameters):
         wait_for_image(parameters[0], (int(parameters[1]), int(parameters[2]), int(parameters[3]), int(parameters[4])))
     if command == 'WAIT_ANY_IMAGE':
         wait_for_any_image(parameters[0], (int(parameters[1]), int(parameters[2]), int(parameters[3]), int(parameters[4])), parameters[5], (int(parameters[6]), int(parameters[7]), int(parameters[8]), int(parameters[9])))
+    if command == 'WAIT_INF_IMAGE':
+        wait_for_inf_image(parameters[4:], (int(parameters[0]), int(parameters[1]), int(parameters[2]), int(parameters[3])))
     if command == 'CLICK':
         custom_click(int(parameters[0]), int(parameters[1]), 5)
         time.sleep(0.05)
