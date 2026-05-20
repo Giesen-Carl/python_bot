@@ -1,11 +1,11 @@
 from script_utils import *
 
-while True:
-    try:
-        execute_script('script.bs')
+# while True:
+#     try:
+execute_script('script.bs')
         #execute_script('event_attack.bs')
-    except:
-        print('Breaking Loop')
+    # except:
+    #     print('Breaking Loop')
 
 # valk_top = [
 #     (240, 660, 1020, 80),

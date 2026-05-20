@@ -2,11 +2,21 @@ import os
 import cv2
 import numpy as np
 import pyautogui
-import win32api
 import random
 import time
-import win32con
-import keyboard
+from pynput import keyboard
+
+pressed_keys = set()
+
+def on_press(key):
+    pressed_keys.add(key)
+
+def on_release(key):
+    pressed_keys.discard(key)
+
+listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+
+listener.start()
 
 images = {}
 for filename in os.listdir('config/images'):
@@ -39,13 +49,13 @@ def get_rect_centers(rects):
 def custom_click(x, y, uncert):
     x_pos = x if uncert == 0 else (random.randrange(x - uncert, x + uncert))
     y_pos = y if uncert == 0 else (random.randrange(y - uncert, y + uncert))
-    win32api.SetCursorPos((x_pos, y_pos))
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
+    pyautogui.moveTo(x_pos, y_pos, duration=random.randrange(50, 100) / 1000)
+    pyautogui.mouseDown()
     time.sleep(random.randrange(25, 50) / 1000)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+    pyautogui.mouseUp()
 
 def key_down(key):
-    return keyboard.is_pressed(key)
+    return keyboard.KeyCode.from_char(key) in pressed_keys
 
 def start(start_key):
     print('press ' + start_key + ' to start')
