@@ -1,0 +1,9 @@
+WAIT_KEY s
+PRINT running
+WAIT_KEY a
+CHECK_IMAGE gold_storage 1584 36 314 35 4
+CHECK_IMAGE elixir_storage 1583 120 214 36 3
+CHECK_IMAGE dark_elixir_storage 1668 203 227 37 2
+GOTO 1
+GOTO 3
+END

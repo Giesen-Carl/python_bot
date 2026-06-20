@@ -27,6 +27,11 @@ def find_image(base_image, search_image):
     less_rectangles, weights = cv2.groupRectangles(more_rectangles, 1, 0.2)
     centers = get_rect_centers(less_rectangles)
     return centers
+    
+def display_image(image):
+    cv2.imshow('NeedNoTitle', image)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
 
 def get_rect_centers(rects):
     centers = []
@@ -121,6 +126,11 @@ def execute(line, command, parameters):
         custom_scroll(int(parameters[0]))
     if command == 'DRAG':
         custom_drag(int(parameters[0]), int(parameters[1]), int(parameters[2]), int(parameters[3]), int(parameters[4]))
+    if command == 'CHECK_IMAGE':
+        if check_for_image(parameters[0], (int(parameters[1]), int(parameters[2]), int(parameters[3]), int(parameters[4]))):
+            return line + 1
+        else:
+            return line + int(parameters[5])
     if command == 'CHECK_NOT_IMAGE':
         if not check_for_image(parameters[0], (int(parameters[1]), int(parameters[2]), int(parameters[3]), int(parameters[4]))):
             return line + 1

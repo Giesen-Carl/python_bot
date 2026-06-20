@@ -4,6 +4,7 @@ while True:
     try:
         execute_script('script.bs')
         #execute_script('event_attack.bs')
+        #execute_script('test.bs')
     except:
         print('Breaking Loop')
 
